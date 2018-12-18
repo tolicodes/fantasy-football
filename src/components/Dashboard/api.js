@@ -18,7 +18,7 @@ export const updatePlayer = player =>
     axios.put(API_URL + 'players/' + player.id, player);
 
 export const getUsers = () =>
-    axios.get(API_URL + 'users');
+    axios.get(API_URL + 'users/');
 
 export const updateUser = user =>
     axios.put(API_URL + 'users/' + user.id, user);
