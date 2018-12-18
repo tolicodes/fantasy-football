@@ -10,5 +10,15 @@ module.exports = async (req, res, next) => {
     
     if (!req.user) return res.status(403).send('Unauthorized');
 
+    const { uid } = req.user;
+    const userRef = await db.collection('users').doc(uid).get();
+
+    if (userRef) {
+        req.user = {
+            ...req.user,
+            ...userRef.data()
+        };
+    }
+
     next();
 }

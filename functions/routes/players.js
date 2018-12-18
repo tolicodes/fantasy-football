@@ -1,5 +1,7 @@
 const createRoute = require('./createRoute');
 const authenticate = require('../db/authenticate');
+const { requireAdmin } = require('../utils/auth');
+const generatePlayer = require('../helpers/generatePlayer')
 const db = require('../db');
 
 const app = createRoute();
@@ -109,21 +111,38 @@ app.post('/:id/buy', authenticate, async (req, res) => {
 });
 
 app.put('/:id', authenticate, async (req, res) => {
-    const { uid } = req.user;
+    const { uid, isLeagueManager, isAdmin } = req.user;
     const { id } = req.params;
-    const { firstName, lastName, country } = req.body;
+    const { firstName, lastName, country, position, age } = req.body;
 
     if (!userOwnsPlayer(uid, id)) return res.status(403).json('Not your player!! Sneaky');
 
     const player = await db.collection('players').doc(playerId).get();
     
-    player.set({
+    const update = {
         firstName,
         lastName,
         country,
-    }, { merge: true });
+    };
+
+    if (isLeagueManager || isAdmin) {
+        update.position = position;
+    }
+
+    if (isAdmin) {
+        update.age = age;
+        update.value = value;
+    }
+
+    await player.set(update, { merge: true });
 
     res.json(await player.data());
 });
+
+app.post('/:id', authenticate, requireAdmin, async (req, res) => {
+    const player = await db.collection.players.add(generatePlayer());
+
+    res.json(player);
+})
 
 module.exports = app;
