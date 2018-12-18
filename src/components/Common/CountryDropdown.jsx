@@ -13,17 +13,19 @@ const FullWidthSelect = styled(FormControl)`
     margin-bottom: 10px !important;
 `;
 
-export default ({ onChange, value }) => (
-    <FullWidthSelect variant="outlined">
-        <InputLabel>Team Country</InputLabel>
+const inputField = (minimal) => !minimal ? {
+    input: <OutlinedInput
+        labelWidth={100}
+    />
+} : {};
+
+export default ({ onChange, value, minimal }) => (
+    <FullWidthSelect>
+        {!minimal && <InputLabel>Team Country</InputLabel>}
         <Select
             value={value}
             onChange={onChange}
-            input={
-                <OutlinedInput
-                    labelWidth={100}
-                />
-            }
+            {...inputField(minimal)}
         >
             {
                 countryList.getData().map(({

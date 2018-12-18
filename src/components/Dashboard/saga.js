@@ -15,6 +15,8 @@ import {
     UPDATE_USER,
     setUser,
     DELETE_USER,
+    GET_TEAM_FOR_USER,
+    setTeamForUser,
 } from './actions';
 
 import {
@@ -26,6 +28,7 @@ import {
     getUsers,
     updateUser,
     deleteUser,
+    getTeamForUser,
 } from './api';
 
 function handleApi(cb) {
@@ -161,6 +164,16 @@ function* getUsersSaga() {
     yield(put(setUsers(users)));
 }
 
+function* getTeamForUserSaga({ data: id }) {
+    const { data: team } = yield handleApi(function* () {
+        return yield getTeamForUser(id);
+    });
+
+    if (!team) return;
+
+    yield put(setTeamForUser({ id, team }))
+}
+
 export default function* rootSaga() {
   yield all([
     takeLatest(INIT_DASHBOARD, initDashboardSaga),
@@ -172,5 +185,6 @@ export default function* rootSaga() {
     takeLatest(GET_USERS, getUsersSaga),
     takeLatest(UPDATE_USER, updateUserSaga),
     takeLatest(DELETE_USER, deleteUserSaga),
+    takeLatest(GET_TEAM_FOR_USER, getTeamForUserSaga),
   ]);
 }

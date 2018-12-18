@@ -8,8 +8,17 @@ import TableCell from '@material-ui/core/TableCell';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import TextField from '@material-ui/core/TextField';
+import Select from '@material-ui/core/Select';
+import MenuItem from '@material-ui/core/MenuItem';
 
 import CountryDropdown from '../Common/CountryDropdown'
+
+const POSITIONS = [
+    'goalkeeper',
+    'defender',
+    'midfielder',
+    'attacker',
+];
 
 const SellColumn = styled(TableCell)`
     width: 200px;
@@ -27,6 +36,8 @@ export default class PlayersTable extends React.Component {
             ActionColumn,
             editable,
             handleChange,
+            admin,
+            leagueManager,
         } = this.props;
         
         return (
@@ -65,7 +76,7 @@ export default class PlayersTable extends React.Component {
                                     />
                                 </TableCell>
                                 <TableCell>{
-                                    editable
+                                    editable || admin || leagueManager
                                         ? <BigTextField
                                             value={firstName}
                                             onChange={handleChange(id, 'firstName')}
@@ -73,26 +84,55 @@ export default class PlayersTable extends React.Component {
                                         : firstName
                                 }</TableCell>
                                 <TableCell>{
-                                    editable
+                                    editable || admin || leagueManager
                                         ? <BigTextField
                                             value={lastName}
                                             onChange={handleChange(id, 'lastName')}
                                             />
                                         : lastName
                                 }</TableCell>
-                                <TableCell>{position}</TableCell>
-                                <TableCell>{age}</TableCell>
+                                <TableCell>{(admin || leagueManager)
+                                    ? (
+                                        <Select
+                                            value={position}
+                                            onChange={handleChange(id, 'position')}
+                                        >
+                                            {
+                                                POSITIONS.map(position => (
+                                                    <MenuItem key={position} value={position}>
+                                                        {position}
+                                                    </MenuItem>
+                                                )) 
+                                            }
+                                        </Select>
+                                    )
+                                    : position
+                                }</TableCell>
+                                <TableCell>{admin
+                                    ? <BigTextField
+                                        value={age}
+                                        onChange={handleChange(id, 'age')}
+                                    />
+                                    : age
+                                }</TableCell>
                                 <TableCell>{
-                                    editable
+                                    editable || admin || leagueManager
                                     ? <CountryDropdown
+                                        minimal
                                         value={country}
                                         onChange={handleChange(id, 'country')}
                                     />
                                     : country
                                 }</TableCell>
-                                <TableCell>${formatCurrency(value)}</TableCell>
+                                <TableCell>{admin
+                                    ? <BigTextField
+                                        value={value}
+                                        onChange={handleChange(id, 'value')}
+                                    />
+                                    : formatCurrency(value)
+                                }</TableCell>
                                 <TableCell>
-                                   {ActionColumn(id)}
+                                   {ActionColumn && ActionColumn(id)}
                                 </TableCell>
                             </TableRow>
                         ))

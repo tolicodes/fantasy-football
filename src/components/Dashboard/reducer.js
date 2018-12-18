@@ -4,6 +4,7 @@ import {
     SET_PLAYER,
     SET_USERS,
     SET_USER,
+    SET_TEAM_FOR_USER,
 } from './actions';
 
 const initialState = {
@@ -12,6 +13,8 @@ const initialState = {
 
     // admin stuff
     users: [],
+
+    teams: {}
 };
 
 export default (state = initialState, { type, data }) => {
@@ -63,6 +66,17 @@ export default (state = initialState, { type, data }) => {
                     ...state.users,
                 ],
             }
+        }
+
+        case SET_TEAM_FOR_USER: {
+            state.teams[data.id] = data.team;
+
+            return {
+                ...state,
+                teams: {
+                    ...state.teams
+                },
+            };
         }
 
         default: {

@@ -18,6 +18,7 @@ import {
     updatePlayer,
     updateUser,
     deleteUser,
+    getTeamForUser,
 } from './actions';
 
 const SellTextField = styled(TextField)`
@@ -113,6 +114,10 @@ class Dashboard extends React.Component {
         this.props.deleteUser(id);
     }
 
+    onClickShowTeam = id => () => {
+        this.props.getTeamForUser(id);
+    }
+
     getTeamValue() {
         const { team } = this.props;;
 
@@ -122,7 +127,7 @@ class Dashboard extends React.Component {
     }
 
     render() {
-        const { team, playersForSale, me, users } = this.props;
+        const { team, playersForSale, me, users, teams } = this.props;
         const { playerPrices, tabIndex } = this.state;
         const { teamName, teamCountry, isAdmin, isLeagueManager } = me;
 
@@ -187,10 +192,13 @@ class Dashboard extends React.Component {
 
                 { tabIndex === 2 && <UsersTable
                     users={users}
+                    teams={teams}
                     admin={isAdmin}
                     leagueManager={isLeagueManager}
                     handleChange={this.handleUserChange}
                     onClickDelete={this.onClickDelete}
+                    onClickShowTeam={this.onClickShowTeam}
+                    handlePlayerChange={this.handlePlayerChange}
                 /> }
             </div>
         )
@@ -203,12 +211,14 @@ export default connect(
             playersForSale,
             team,
             users,
+            teams,
         },
         auth: {
             me,
         }
     }) => ({
         team,
+        teams,
         playersForSale,
         me,
         users,
@@ -219,5 +229,6 @@ export default connect(
         updatePlayer,
         updateUser,
         deleteUser,
+        getTeamForUser,
     }, dispatch)
 )(Dashboard);
