@@ -1,6 +1,7 @@
 import {
     SET_TEAM,
     SET_PLAYERS_FOR_SALE,
+    SET_PLAYER,
 } from './actions';
 
 const initialState = {
@@ -22,6 +23,22 @@ export default (state = initialState, { type, data }) => {
                 ...state,
                 playersForSale: data,
             };
+        }
+
+        case SET_PLAYER: {
+            const player = state.team.find(player => player.id === data.id);
+            const index = state.team.indexOf(player);
+
+            state.team[index] = data;
+
+            console.log(data);
+            
+            return {
+                ...state,
+                team: [
+                    ...state.team,
+                ],
+            }
         }
 
         default: {

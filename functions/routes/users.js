@@ -12,6 +12,13 @@ app.get('/', authenticate, requireLeagueManager, async (req, res) => {
     res.json(usersRef.docs.map(user => user.data()));
 });
 
+app.get('/me', authenticate, async (req, res) => {
+    const { uid } = req.user;
+
+    const user = (await db.collection('users').doc(uid).get()).data();
+    res.json(user);
+});
+
 app.post('/', authenticate, async (req, res) => {
     const { uid } = req.user;
     const {

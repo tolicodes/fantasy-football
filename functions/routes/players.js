@@ -117,7 +117,8 @@ app.put('/:id', authenticate, async (req, res) => {
 
     if (!userOwnsPlayer(uid, id)) return res.status(403).json('Not your player!! Sneaky');
 
-    const player = await db.collection('players').doc(playerId).get();
+    const playerRef = db.collection('players').doc(id);
+    const player = await playerRef.get();
     
     const update = {
         firstName,

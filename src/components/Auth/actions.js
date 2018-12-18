@@ -1,6 +1,8 @@
 export const SET_USER = 'SET_USER';
 export const SIGN_IN = 'SIGN_IN';
 export const REGISTER = 'REGISTER';
+export const GET_ME = 'GET_ME';
+export const SET_ME = 'SET_ME';
 
 export const setUser = (user) => ({ 
     type: SET_USER, 
@@ -34,3 +36,7 @@ export const register = ({
         teamCountry,
     }
 });
+
+export const getMe = () => ({ type: GET_ME });
+
+export const setMe = user => ({ type: SET_ME, data: user });

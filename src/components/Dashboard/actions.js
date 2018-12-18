@@ -8,6 +8,8 @@ export const BUY_PLAYER = 'BUY_PLAYER';
 export const GET_USERS = 'GET_USERS';
 export const UPDATE_USER = 'UPDATE_USER';
 export const DELETE_USER = 'DELETE_USER';
+export const UPDATE_PLAYER = 'UPDATE_PLAYER';
+export const SET_PLAYER = 'SET_PLAYER';
 
 export const getTeam = () => ({ type: GET_TEAM });
 export const getPlayersForSale = () => ({ type: GET_PLAYERS_FOR_SALE });
@@ -33,3 +35,5 @@ export const updateUser = ({
 });
 
 export const deleteUser = ({id}) => ({ type: DELETE_USER, data: id });
+export const updatePlayer = player => ({ type: UPDATE_PLAYER, data: player });
+export const setPlayer = player => ({ type: SET_PLAYER, data: player });

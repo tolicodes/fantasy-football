@@ -16,3 +16,5 @@ export const sellPlayer = ({
 export const buyPlayer = ({
     id,
 }) => axios.post(API_URL + 'players/' + id + '/buy');
+
+export const updatePlayer = (player) => axios.put(API_URL + 'players/' + player.id, player);

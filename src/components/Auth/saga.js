@@ -5,6 +5,7 @@ import { all, put, takeLatest } from 'redux-saga/effects';
 import {
     SIGN_IN,
     REGISTER,
+    setMe,
 } from './actions';
 
 import { initDashboard } from '../Dashboard/actions';
@@ -13,6 +14,7 @@ import {
     createUser,
     signIn,
     setPersistance,
+    getMe,
 } from './api';
 
 function* handleApi(cb) {
@@ -43,6 +45,7 @@ function* signInSaga({
     yield setToken();
 
     yield put(initDashboard());
+    yield getMeSaga();
 }
 
 function* registerSaga({
@@ -78,6 +81,7 @@ function* registerSaga({
     if (!user) return;
 
     yield put(initDashboard());
+    yield getMeSaga();
 }
 
 function* setToken() {
@@ -94,7 +98,21 @@ function* initApp() {
     const token = yield setToken();
     if (!token) return;
 
-    yield put(initDashboard()); 
+    yield put(initDashboard());
+    yield getMeSaga();
+}
+
+function* getMeSaga() {
+    console.log('me')
+    const { data: me } = yield handleApi(function* () { 
+        return yield getMe()
+    });
+
+    console.log(me)
+
+    if (!me) return;
+
+    yield(put(setMe(me)));
 }
 
 export default function* rootSaga() {

@@ -8,6 +8,8 @@ import {
     setPlayersForSale,
     SELL_PLAYER,
     BUY_PLAYER,
+    UPDATE_PLAYER,
+    setPlayer,
 } from './actions';
 
 import {
@@ -15,6 +17,7 @@ import {
     getPlayersForSale,
     buyPlayer,
     sellPlayer,
+    updatePlayer,
 } from './api';
 
 function handleApi(cb) {
@@ -81,13 +84,21 @@ function* buyPlayerSaga({
         });
     });
 
-    console.log(bought)
-
     if (!bought) return;
 
     alert('Bought Player');
 
     yield initDashboardSaga();
+}
+
+function* updatePlayerSaga({
+    data: player,
+}) {
+    yield put(setPlayer(player));
+
+    yield handleApi(function* () {
+        return yield updatePlayer(player);
+    });
 }
 
 export default function* rootSaga() {
@@ -96,6 +107,7 @@ export default function* rootSaga() {
     takeLatest(GET_TEAM, getTeamSaga),
     takeLatest(GET_PLAYERS_FOR_SALE, getPlayersForSaleSaga),
     takeLatest(SELL_PLAYER, sellPlayerSaga),
-    takeLatest(BUY_PLAYER, buyPlayerSaga)
+    takeLatest(BUY_PLAYER, buyPlayerSaga),
+    takeLatest(UPDATE_PLAYER, updatePlayerSaga)
   ]);
 }

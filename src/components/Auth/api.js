@@ -33,3 +33,5 @@ export const createUser = async ({
     teamCountry,
     teamName,
 });
+
+export const getMe = async () => axios.get(API_URL + 'users/me');

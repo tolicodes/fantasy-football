@@ -9,10 +9,12 @@ import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
 
 import PlayersTable from './PlayersTable';
+import Header from './Header';
 
 import {
     sellPlayer,
     buyPlayer,
+    updatePlayer,
 } from './actions';
 
 const SellTextField = styled(TextField)`
@@ -85,20 +87,39 @@ class Dashboard extends React.Component {
     }
 
     handleChange = (id, field) =>  ({ target: { value }}) => {
-        console.log(id, field, value)
+        const { team, updatePlayer } = this.props;
+        const player = team.find(player => player.id === id);
+
+        updatePlayer({
+            ...player,
+            [field]: value,
+        })
+    }
+
+    getTeamValue() {
+        const { team } = this.props;;
+
+        return team.reduce((sum, player) => {
+            return sum + player.value;
+        }, 0);
     }
 
     render() {
-        const { team, playersForSale } = this.props;
+        const { team, playersForSale, me } = this.props;
         const { playerPrices, tabIndex } = this.state;
+        const { teamName, teamCountry } = me;
 
         return (
             <div>
+                <Header
+                    {...me}
+                    teamValue={this.getTeamValue()}
+                />
                 <Tabs
                     value={tabIndex}
                     onChange={this.handleChangeTab}
                 >
-                    <Tab label="Your Team" />
+                    <Tab label={`Your Team - ${teamName} (${teamCountry})`} />
                     <Tab label="Players For Sale" />
                 </Tabs>
 
@@ -154,12 +175,17 @@ export default connect(
             playersForSale,
             team,
         },
+        auth: {
+            me,
+        }
     }) => ({
         team,
         playersForSale,
+        me,
     }),
     dispatch => bindActionCreators({
         sellPlayer,
         buyPlayer,
+        updatePlayer,
     }, dispatch)
 )(Dashboard);
