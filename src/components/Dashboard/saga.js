@@ -1,4 +1,4 @@
-import { all, takeLatest, put } from 'redux-saga/effects';
+import { all, takeLatest, put, select } from 'redux-saga/effects';
 
 import {
     GET_TEAM,
@@ -10,6 +10,11 @@ import {
     BUY_PLAYER,
     UPDATE_PLAYER,
     setPlayer,
+    GET_USERS,
+    setUsers,
+    UPDATE_USER,
+    setUser,
+    DELETE_USER,
 } from './actions';
 
 import {
@@ -18,6 +23,9 @@ import {
     buyPlayer,
     sellPlayer,
     updatePlayer,
+    getUsers,
+    updateUser,
+    deleteUser,
 } from './api';
 
 function handleApi(cb) {
@@ -46,6 +54,26 @@ function* getPlayersForSaleSaga() {
 function* initDashboardSaga() {
     yield getTeamSaga();
     yield getPlayersForSaleSaga();
+
+    const {
+        isAdmin,
+        isLeagueManager
+    } = yield select(({
+        auth: {
+            me: {
+                isAdmin,
+                isLeagueManager,
+            }
+        }
+    }) => ({
+        isAdmin,
+        isLeagueManager
+    }));
+
+    if (isAdmin || isLeagueManager) {
+        yield getUsersSaga();
+    }
+
     redirectToDashboard();
 }
 
@@ -101,6 +129,38 @@ function* updatePlayerSaga({
     });
 }
 
+function* updateUserSaga({
+    data: user,
+}) {
+    yield put(setUser(user));
+
+    yield handleApi(function* () {
+        return yield updateUser(user);
+    });
+}
+
+function* deleteUserSaga({
+    data: id,
+}) {
+    const success = yield handleApi(function* () {
+        return yield deleteUser({id});
+    });
+
+    if (!success) return;
+
+    alert('User Deleted')
+}
+
+function* getUsersSaga() {
+    const { data: users } = yield handleApi(function* () {
+        return yield getUsers();
+    });
+
+    if (!users) return;
+
+    yield(put(setUsers(users)));
+}
+
 export default function* rootSaga() {
   yield all([
     takeLatest(INIT_DASHBOARD, initDashboardSaga),
@@ -108,6 +168,9 @@ export default function* rootSaga() {
     takeLatest(GET_PLAYERS_FOR_SALE, getPlayersForSaleSaga),
     takeLatest(SELL_PLAYER, sellPlayerSaga),
     takeLatest(BUY_PLAYER, buyPlayerSaga),
-    takeLatest(UPDATE_PLAYER, updatePlayerSaga)
+    takeLatest(UPDATE_PLAYER, updatePlayerSaga),
+    takeLatest(GET_USERS, getUsersSaga),
+    takeLatest(UPDATE_USER, updateUserSaga),
+    takeLatest(DELETE_USER, deleteUserSaga),
   ]);
 }

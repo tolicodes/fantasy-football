@@ -1,6 +1,6 @@
 const createRoute = require('./createRoute');
 const authenticate = require('../db/authenticate');
-const { requireAdmin } = require('../utils/auth');
+const { requireAdmin } = require('../helpers/auth');
 const generatePlayer = require('../helpers/generatePlayer')
 const db = require('../db');
 
@@ -85,14 +85,12 @@ app.post('/:id/buy', authenticate, async (req, res) => {
     const oldOwnerRef = player.owner;
     const oldOwner = (await oldOwnerRef.get()).data();
 
-    console.log(oldOwner.balance, player.forSale, user.balance)
-
     await oldOwnerRef.set({
-        balance: oldOwner.balance + player.forSale,
+        balance: parseFloat(oldOwner.balance) + parseFloat(player.forSale),
     }, { merge: true });
 
     await userRef.set({
-        balance: user.balance - player.forSale,
+        balance: parseFloat(user.balance) - parseFloat(player.forSale),
     }, {  merge: true });
 
     await playerRef.set({

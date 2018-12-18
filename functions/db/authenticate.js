@@ -1,4 +1,5 @@
 const admin = require("firebase-admin");
+const db = require('../db')
 
 module.exports = async (req, res, next) => {
     const { authorization } = req.headers;

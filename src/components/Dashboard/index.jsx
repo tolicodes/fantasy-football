@@ -9,12 +9,15 @@ import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
 
 import PlayersTable from './PlayersTable';
+import UsersTable from './UsersTable';
 import Header from './Header';
 
 import {
     sellPlayer,
     buyPlayer,
     updatePlayer,
+    updateUser,
+    deleteUser,
 } from './actions';
 
 const SellTextField = styled(TextField)`
@@ -86,7 +89,7 @@ class Dashboard extends React.Component {
         })
     }
 
-    handleChange = (id, field) =>  ({ target: { value }}) => {
+    handlePlayerChange = (id, field) =>  ({ target: { value }}) => {
         const { team, updatePlayer } = this.props;
         const player = team.find(player => player.id === id);
 
@@ -94,6 +97,20 @@ class Dashboard extends React.Component {
             ...player,
             [field]: value,
         })
+    }
+
+    handleUserChange = (id, field) => ({ target: { value, checked }}) => {
+        const { users, updateUser } = this.props;
+        const user = users.find(user => user.id === id);
+
+        updateUser({
+            ...user,
+            [field]: value || !!checked,
+        })
+    }
+
+    onClickDelete = id => () => {
+        this.props.deleteUser(id);
     }
 
     getTeamValue() {
@@ -105,9 +122,9 @@ class Dashboard extends React.Component {
     }
 
     render() {
-        const { team, playersForSale, me } = this.props;
+        const { team, playersForSale, me, users } = this.props;
         const { playerPrices, tabIndex } = this.state;
-        const { teamName, teamCountry } = me;
+        const { teamName, teamCountry, isAdmin, isLeagueManager } = me;
 
         return (
             <div>
@@ -121,12 +138,15 @@ class Dashboard extends React.Component {
                 >
                     <Tab label={`Your Team - ${teamName} (${teamCountry})`} />
                     <Tab label="Players For Sale" />
+                    { (isAdmin || isLeagueManager) &&
+                        <Tab label="Manage Users" />
+                    }
                 </Tabs>
 
                 { tabIndex === 0 && <PlayersTable
                     players={team}
                     actionTitle="Sell Player"
-                    handleChange={this.handleChange}
+                    handleChange={this.handlePlayerChange}
                     editable={true}
                     ActionColumn={(id) =>
                         <>
@@ -164,6 +184,14 @@ class Dashboard extends React.Component {
                         </>
                     }
                 /> }
+
+                { tabIndex === 2 && <UsersTable
+                    users={users}
+                    admin={isAdmin}
+                    leagueManager={isLeagueManager}
+                    handleChange={this.handleUserChange}
+                    onClickDelete={this.onClickDelete}
+                /> }
             </div>
         )
     }
@@ -174,6 +202,7 @@ export default connect(
         app: {
             playersForSale,
             team,
+            users,
         },
         auth: {
             me,
@@ -182,10 +211,13 @@ export default connect(
         team,
         playersForSale,
         me,
+        users,
     }),
     dispatch => bindActionCreators({
         sellPlayer,
         buyPlayer,
         updatePlayer,
+        updateUser,
+        deleteUser,
     }, dispatch)
 )(Dashboard);

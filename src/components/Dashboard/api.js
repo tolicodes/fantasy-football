@@ -13,8 +13,12 @@ export const sellPlayer = ({
     amount,
 });
 
-export const buyPlayer = ({
-    id,
-}) => axios.post(API_URL + 'players/' + id + '/buy');
+export const buyPlayer = ({ id }) => axios.post(API_URL + 'players/' + id + '/buy');
 
 export const updatePlayer = (player) => axios.put(API_URL + 'players/' + player.id, player);
+
+export const getUsers = () => axios.get(API_URL + 'users');
+
+export const updateUser = user => axios.put(API_URL + 'users/' + user.id, user);
+
+export const deleteUser = ({id}) => axios.delete(API_URL + 'users/' + id);

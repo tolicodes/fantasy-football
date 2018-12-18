@@ -3,13 +3,18 @@ const createRoute = require('./createRoute');
 const db = require('../db');
 const authenticate = require('../db/authenticate');
 const generateTeam = require('../helpers/generateTeam');
-const { requireLeagueManager } = require('../helpers/auth');
+const { requireLeagueManager, requireAdmin } = require('../helpers/auth');
 
 const app = createRoute();
 
+const INITIAL_BALANCE = 5000000;
+
 app.get('/', authenticate, requireLeagueManager, async (req, res) => {
     const usersRef = await db.collection('users').get();
-    res.json(usersRef.docs.map(user => user.data()));
+    res.json(usersRef.docs.map(user => ({
+        ...user.data(),
+        id: user.id
+    })));
 });
 
 app.get('/me', authenticate, async (req, res) => {
@@ -17,6 +22,19 @@ app.get('/me', authenticate, async (req, res) => {
 
     const user = (await db.collection('users').doc(uid).get()).data();
     res.json(user);
+});
+
+app.get('/:id/team', authenticate, requireLeagueManager, async (req, res) => {
+    const { id } = req.params;
+
+    const playersRef = await db.collection('players')
+        .where('owner', '==', db.collection('users').doc(id))
+        .get();
+
+    res.json(playersRef.docs.map(player => ({
+        ...player.data(),
+        id: player.id
+    })));
 });
 
 app.post('/', authenticate, async (req, res) => {
@@ -31,6 +49,9 @@ app.post('/', authenticate, async (req, res) => {
         name,
         teamName,
         teamCountry,
+        isAdmin: false,
+        isLeagueManager: false,
+        balance: INITIAL_BALANCE
     };
     
     const userDoc = db.collection('users').doc(uid);
@@ -60,10 +81,20 @@ app.post('/', authenticate, async (req, res) => {
     });
 });
 
+app.delete('/:id', authenticate, requireAdmin, async (req, res) => {
+    const { id } = req.params;
+
+    await db.collection('users').doc(id).delete();
+
+    res.json({
+        success: true,
+    })
+});
+
 app.put('/:id', authenticate, requireLeagueManager, async (req, res) => {
     const { id } = req.params;
-    const { teamName, teamCountry, balance, name, } = req.body;
-    const { isAdmin } = req.user;
+    const { teamName, teamCountry, balance, name, isAdmin, isLeagueManager } = req.body;
+    const { isAdmin: userIsAdmin } = req.user;
     
     const userRef = db.collection('users').doc(id);
 
@@ -72,12 +103,16 @@ app.put('/:id', authenticate, requireLeagueManager, async (req, res) => {
         teamCountry,
     }
 
-    if (isAdmin) {
+    if (userIsAdmin) {
         update.balance = balance;
         update.name = name;
+        update.isAdmin = isAdmin;
+        update.isLeagueManager = isLeagueManager;
     }
 
-    userRef.set(update, { merge: true })
+    userRef.set(update, { merge: true });
+
+    res.json((await userRef.get()).data())
 });
 
 app.get('/notifications', authenticate, async (res, req) => {
@@ -95,7 +130,9 @@ app.get('/notifications', authenticate, async (res, req) => {
                     read: true
                 });
 
-                return (await db.collection('players').get(notification.data().player)).data();
+                return (await db.collection('players')
+                    .get(notification.data().player))
+                    .data();
             })
     );
     

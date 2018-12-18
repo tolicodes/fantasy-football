@@ -1,6 +1,6 @@
 const db = require('../db');
 
-export const requireLeagueManager = async (req, res, next) => {
+const requireLeagueManager = async (req, res, next) => {
     const { user } = req;
 
     if (!user.isAdmin && !user.isLeagueManager) {
@@ -12,7 +12,7 @@ export const requireLeagueManager = async (req, res, next) => {
     next();
 }
 
-export const requireAdmin = async (req, res, next) => {
+const requireAdmin = async (req, res, next) => {
     const { user } = req;
 
     if (!user.isAdmin) {
@@ -23,3 +23,8 @@ export const requireAdmin = async (req, res, next) => {
 
     next();
 }
+
+module.exports = {
+    requireAdmin,
+    requireLeagueManager,
+};
